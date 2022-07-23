@@ -50,7 +50,7 @@ function login(password) {
 function findPasswordLength(maxLength = 64) {
   const times = [];
 
-  for (let i = 0; i < maxLength; i++) {
+  for (let i = 0; i <= maxLength; i++) {
     const guess = Buffer.alloc(i);
     const t0 = process.hrtime.bigint();
     for (let k = 0; k < 200_001; k++) {
