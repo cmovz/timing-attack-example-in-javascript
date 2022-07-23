@@ -79,56 +79,56 @@ function findPassword() {
     guesses.push({time: -1n, buf: Buffer.alloc(bufLen)});
   }
 
-  while (true) {
-    for (let i = 0; i < bufLen; i++) {
-      console.log('position: ' + i);
+  for (let i = 0; i < bufLen; i++) {
+    console.log('position: ' + i);
 
-      guesses.forEach((guess) => {
-        const times = [];
+    guesses.forEach((guess) => {
+      const times = [];
 
-        for (let j = 0; j < 256; j++) {
-          guess.buf[i] = j;
-          const t0 = process.hrtime.bigint();
-          for (let k = 0; k < 20_001; k++) {
-            login(guess.buf);
-          }
-          const t1 = process.hrtime.bigint();
-          times.push(t1 - t0);
+      for (let j = 0; j < 256; j++) {
+        guess.buf[i] = j;
+        const t0 = process.hrtime.bigint();
+        for (let k = 0; k < 20_001; k++) {
+          login(guess.buf);
         }
-        
-        let bestTime = -1n; 
-        let bestIdx = -1;
-        times.forEach((time, k) => {
-          if (time > bestTime) {
-            bestTime = time;
-            bestIdx = k;
-          }
-        });
-
-        guess.time = bestTime;
-        guess.buf[i] = bestIdx;
+        const t1 = process.hrtime.bigint();
+        times.push(t1 - t0);
+      }
+      
+      let bestTime = -1n; 
+      let bestIdx = -1;
+      times.forEach((time, k) => {
+        if (time > bestTime) {
+          bestTime = time;
+          bestIdx = k;
+        }
       });
 
-      const bytes = {};
-      guesses.forEach(guess => {
-        const b = guess.buf[i];
-        const obj = bytes[b] || {count: 0};
-        obj.count += 1;
-        bytes[b] = obj;
-      });
+      guess.time = bestTime;
+      guess.buf[i] = bestIdx;
+    });
 
-      const arr = Object.keys(bytes).map(key => {
-        return {key, count: bytes[key].count};
-      });
-      arr.sort((a, b) => a.count - b.count);
-      const chosenByte = arr[arr.length - 1].key;
-      guesses.forEach(guess => {
-        guess.buf[i] = chosenByte;
-      });
+    const bytes = {};
+    guesses.forEach(guess => {
+      const b = guess.buf[i];
+      const obj = bytes[b] || {count: 0};
+      obj.count += 1;
+      bytes[b] = obj;
+    });
 
-      console.log(guesses);
-    }
+    const arr = Object.keys(bytes).map(key => {
+      return {key, count: bytes[key].count};
+    });
+    arr.sort((a, b) => a.count - b.count);
+    const chosenByte = arr[arr.length - 1].key;
+    guesses.forEach(guess => {
+      guess.buf[i] = chosenByte;
+    });
+
+    console.log(guesses);
   }
 }
 
-findPassword();
+while (true) {
+  findPassword();
+}
